@@ -1,0 +1,88 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net472</TargetFramework>
+    <DisableFastUpToDateCheck>true</DisableFastUpToDateCheck>
+    <AutoIncrementVsixVersion>true</AutoIncrementVsixVersion>
+    <VsixVersionPrefix>1.0</VsixVersionPrefix>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <GenerateTargetFrameworkAttribute>false</GenerateTargetFrameworkAttribute>
+    <GeneratePkgDefFile>true</GeneratePkgDefFile>
+    <IncludeAssemblyInVSIXContainer>true</IncludeAssemblyInVSIXContainer>
+    <CopyBuildOutputToOutputDirectory>true</CopyBuildOutputToOutputDirectory>
+    <CopyOutputSymbolsToOutputDirectory>false</CopyOutputSymbolsToOutputDirectory>
+    <RootNamespace>SSMS.ObjectAggregator.Vsix</RootNamespace>
+    <AssemblyName>SSMS.ObjectAggregator.Vsix</AssemblyName>
+    <VsixOutputPath>bin\$(Configuration)\</VsixOutputPath>
+    <RestoreSources>https://api.nuget.org/v3/index.json</RestoreSources>
+    <LangVersion>latest</LangVersion>
+    <VisualStudioVersion>17.0</VisualStudioVersion>
+    <CreateVsixContainer>true</CreateVsixContainer>
+    <GenerateVsixContainer>true</GenerateVsixContainer>
+    <DeployExtension>false</DeployExtension>
+    <CreatePkgDefAssemblyToProcess>$(TargetPath)</CreatePkgDefAssemblyToProcess>
+    <TargetVsixContainerName>SSMS.ObjectAggregator.Vsix.vsix</TargetVsixContainerName>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Community.VisualStudio.Toolkit.17" Version="17.0.549" />
+    <PackageReference Include="Microsoft.VisualStudio.SDK" Version="17.14.40265" ExcludeAssets="runtime" />
+    <PackageReference Include="Microsoft.VSSDK.BuildTools" Version="17.9.3168" PrivateAssets="all" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <VSCTCompile Include="VSCommandPackage.vsct">
+      <ResourceName>Menus.ctmenu</ResourceName>
+    </VSCTCompile>
+    <None Include="source.extension.vsixmanifest">
+      <SubType>Designer</SubType>
+    </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\SSMS.ObjectAggregator.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <VSIXSourceItem Include="source.extension.vsixmanifest" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="PresentationFramework" />
+    <Reference Include="PresentationCore" />
+    <Reference Include="WindowsBase" />
+    <Reference Include="System.Xaml" />
+  </ItemGroup>
+
+  <PropertyGroup>
+    <IntermediateOutputPath Condition="'$(IntermediateOutputPath)' == ''">$(MSBuildProjectDirectory)\obj\$(Configuration)\</IntermediateOutputPath>
+    <VSSDKTargetsPath Condition="'$(VSSDKTargetsPath)' == '' and '$(PkgMicrosoft_VSSDK_BuildTools)' != ''">$(PkgMicrosoft_VSSDK_BuildTools)\tools\vssdk\Microsoft.VsSDK.targets</VSSDKTargetsPath>
+  </PropertyGroup>
+
+  <Import Project="$(VSSDKTargetsPath)" Condition="Exists('$(VSSDKTargetsPath)')" />
+
+  <PropertyGroup>
+    <CreateVsixContainerDependsOn>GeneratePkgDefFileCustom;SetAutoVsixVersion;$(CreateVsixContainerDependsOn)</CreateVsixContainerDependsOn>
+  </PropertyGroup>
+
+  <Target Name="CreateVsixContainerOnBuild"
+          AfterTargets="Build"
+          Condition="'$(DesignTimeBuild)'!='true' and '$(GenerateVsixContainer)'=='true' and Exists('$(TargetPath)')">
+    <CallTarget Targets="CreateVsixContainer" />
+  </Target>
+
+  <Target Name="SetAutoVsixVersion" DependsOnTargets="DetokenizeVsixManifestFile" Condition="'$(AutoIncrementVsixVersion)'=='true'">
+    <PropertyGroup>
+      <_AutoVsixVersion>$(VsixVersionPrefix).$([System.DateTime]::UtcNow.ToString("yyMMdd")).$([System.DateTime]::UtcNow.ToString("HHmmss"))</_AutoVsixVersion>
+    </PropertyGroup>
+
+    <XmlPoke XmlInputPath="$(IntermediateVsixManifest)"
+             Query="/*[local-name()='PackageManifest']/*[local-name()='Metadata']/*[local-name()='Identity']/@Version"
+             Value="$(_AutoVsixVersion)" />
+
+    <Message Importance="High" Text="VSIX version set to $(_AutoVsixVersion)" />
+  </Target>
+
+  <Target Name="GeneratePkgDefFileCustom" DependsOnTargets="Build" BeforeTargets="CreateVsixContainer">
+    <CreatePkgDef AssemblyToProcess="$(TargetPath)" ProductVersion="$(VisualStudioVersion)" OutputFile="$(IntermediateOutputPath)$(TargetName).pkgdef" UseCodebase="true" ReferencedAssemblies="@(ReferencePath)" Is64BitBuild="true" RequiredArchitecture="amd64" />
+  </Target>
+</Project>

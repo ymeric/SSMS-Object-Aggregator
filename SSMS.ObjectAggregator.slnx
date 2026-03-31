@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="SSMS.ObjectAggregator.csproj" />
+  <Project Path="SSMS.ObjectAggregator.Vsix/SSMS.ObjectAggregator.Vsix.csproj" />
+</Solution>
