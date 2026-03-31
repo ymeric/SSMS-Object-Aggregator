@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<CommandTable xmlns="http://schemas.microsoft.com/VisualStudio/2005-10-18/CommandTable">
+  <Extern href="stdidcmd.h" />
+  <Extern href="vsshlids.h" />
+
+  <Commands package="guidSmartObjectFilterPackage">
+    <Groups>
+      <Group guid="guidSmartObjectFilterPackageCmdSet" id="MyMenuGroup" priority="0x0600">
+        <Parent guid="guidSHLMainMenu" id="IDM_VS_MENU_TOOLS" />
+      </Group>
+    </Groups>
+    <Buttons>
+      <Button guid="guidSmartObjectFilterPackageCmdSet" id="cmdidSmartObjectFilter" priority="0x0100" type="Button">
+        <Parent guid="guidSmartObjectFilterPackageCmdSet" id="MyMenuGroup" />
+        <Icon guid="guidImages" id="bmpPic1" />
+        <Strings>
+          <ButtonText>Object Aggregator</ButtonText>
+        </Strings>
+      </Button>
+    </Buttons>
+  </Commands>
+
+  <Symbols>
+    <GuidSymbol name="guidSmartObjectFilterPackage" value="{F9C8B4AC-9C5A-42A4-8A0E-099999999999}" />
+    <GuidSymbol name="guidSmartObjectFilterPackageCmdSet" value="{F9C8B4AC-9C5A-42A4-8A0E-000000000001}">
+      <IDSymbol name="MyMenuGroup" value="0x1020" />
+      <IDSymbol name="cmdidSmartObjectFilter" value="0x0100" />
+    </GuidSymbol>
+    <GuidSymbol name="guidImages" value="{F9C8B4AC-9C5A-42A4-8A0E-000000000002}">
+      <IDSymbol name="bmpPic1" value="1" />
+    </GuidSymbol>
+  </Symbols>
+</CommandTable>
